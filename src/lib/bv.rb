@@ -1,3 +1,5 @@
+require "bv/node"
+
 class BV
   PKEY = [:lambda]
   EKEY = [:if0, :fold]
@@ -175,6 +177,8 @@ class BV
       method = ast.first
       case method
       when :lambda
+        # TODO: 0 と x をチェックしてない
+        # TODO: (lambda (x) (fold x 0 (lambda (x y) e)))
         if ast[2].is_a?(Array) && ast[2].first == :fold
           [:tfold] + _op(ast[2][3].last)
         else
