@@ -1,0 +1,18 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    rr (1.1.1)
+    shoulda-context (1.1.4)
+    test-unit (2.5.5)
+    test-unit-rr (1.0.3)
+      rr (>= 1.1.1)
+      test-unit (>= 2.5.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rr (~> 1.1.1)
+  shoulda-context (~> 1.1.4)
+  test-unit (~> 2.5.5)
+  test-unit-rr

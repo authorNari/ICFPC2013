@@ -1,0 +1,8 @@
+source 'http://rubygems.org'
+
+group :test do
+  gem 'test-unit', '~> 2.5.5'
+  gem 'shoulda-context', '~> 1.1.4'
+  gem 'rr', '~> 1.1.1'
+  gem 'test-unit-rr'
+end
