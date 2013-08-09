@@ -5,15 +5,13 @@ class BV
       @ids = []
       # 割り当て可能なexpの上限
       @assignable_exp_max = 0
-      # 割り当て可能なidの上限
-      @assignable_id_max = 0
       # 保持するexp数
       @exp_size = 0
       @has_lambda = false
       @parent = nil
     end
     attr_accessor :parent
-    attr_reader :assignable_exp_max, :assignable_id_max, :exp_size
+    attr_reader :assignable_exp_max, :exp_size
 
     def self.get(op)
       case op
@@ -55,17 +53,6 @@ class BV
       return e
     end
 
-    def push_id(id)
-      if @ids.size == assignable_id_max
-        return nil
-      end
-      @ids << id
-    end
-
-    def pop_id
-      @ids.pop
-    end
-
     def has_lambda?
       @has_lambda
     end
@@ -88,8 +75,7 @@ class BV
 
     # 属するNode全体がアサイン済みであるか
     def assigned?
-      res = (@exps.size == @assignable_exp_max &&
-        @ids.size == @assignable_id_max)
+      res = (@exps.size == @assignable_exp_max)
       res = res && !@lambda.nil? if has_lambda?
       res = res && @parent.assigned? if @parent
       return res
@@ -132,10 +118,11 @@ class BV
         @exp_size = 4
         @has_lambda = true
         @lambda = true # dummy
+        @ids = [:a, :b]
       end
 
       def to_a
-        [:lambda, [:x], [:fold, :x, 0, [:lambda, [:x, :y], *@exps[0].to_a]]]
+        [:lambda, [:a], [:fold, :a, 0, [:lambda, [:a, :b], *@exps[0].to_a]]]
       end
     end
 
@@ -143,7 +130,12 @@ class BV
       def initialize
         super
         @exp_size = @assignable_exp_max = 1
-        @assignable_id_max = 2
+        @ids = []
+        if @parent
+          2.times { @ids << @parent.selectable_ids.last.to_s.succ.to_sym }
+        else
+          @ids = [:a, :b]
+        end
       end
 
       def to_a

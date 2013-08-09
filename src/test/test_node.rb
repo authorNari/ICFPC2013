@@ -28,26 +28,20 @@ class BV
         assert_equal 1, Node.get(:lambda).assignable_exp_max
       end
 
-      should "assignable_id_maxは2であること" do
-        assert_equal 2, Node.get(:lambda).assignable_id_max
-      end
-
       should "lambdaはもっていない" do
         assert_equal false, Node.get(:lambda).has_lambda?
       end
 
-      should "push_exp, push_ids後のto_aは[:lambda [id] e1]の形式であること" do
+      should "push_exp後のto_aは[:lambda [id] e1]の形式であること" do
         lambda = Node.get(:lambda)
         true while lambda.push_exp(0)
-        true while lambda.push_id(:x)
-        assert_equal [:lambda, [:x, :x], 0], lambda.to_a
+        assert_equal [:lambda, [:a, :b], 0], lambda.to_a
       end
 
-      should "すべてexp, idがassignされたらassigned?はtrueになる" do
+      should "すべてexpがassignされたらassigned?はtrueになる" do
         lambda = Node.get(:lambda)
         assert_equal false, lambda.assigned?
         true while lambda.push_exp(0)
-        true while lambda.push_id(:x)
         assert_equal true, lambda.assigned?
       end
     end
@@ -61,13 +55,13 @@ class BV
         assert_equal true, Node.get(:tfold).has_lambda?
       end
 
-      should "push_exp, push_ids後のto_aは[:lambda, [:x], [:fold, :x, 0, [:lambda, [:x, :y], e1]]]の形式であること" do
+      should "push_expのto_aは[:lambda, [:x], [:fold, :x, 0, [:lambda, [:x, :y], e1]]]の形式であること" do
         node = Node.get(:tfold)
         true while node.push_exp(0)
-        assert_equal [:lambda, [:x], [:fold, :x, 0, [:lambda, [:x, :y], 0]]], node.to_a
+        assert_equal [:lambda, [:a], [:fold, :a, 0, [:lambda, [:a, :b], 0]]], node.to_a
       end
 
-      should "すべてexp, idがassignされたらassigned?はtrueになる" do
+      should "すべてexpがassignされたらassigned?はtrueになる" do
         node = Node.get(:tfold)
         assert_equal false, node.assigned?
         true while node.push_exp(0)
@@ -84,25 +78,21 @@ class BV
         assert_equal true, Node.get(:fold).has_lambda?
       end
 
-      should "push_exp, push_ids後のto_aは[:fold, e1, e2, [:lambda, [id, id], e3]]の形式であること" do
+      should "push_exp後のto_aは[:fold, e1, e2, [:lambda, [id, id], e3]]の形式であること" do
         node = Node.get(:fold)
         true while node.push_exp(0)
         lambda = Node.get(:lambda)
         true while lambda.push_exp(0)
-        lambda.push_id(:x)
-        lambda.push_id(:y)
         node.lambda = lambda
-        assert_equal [:fold, 0, 0, [:lambda, [:x, :y], 0]], node.to_a
+        assert_equal [:fold, 0, 0, [:lambda, [:a, :b], 0]], node.to_a
       end
 
-      should "すべてexp, idがassignされたらassigned?はtrueになる" do
+      should "すべてexpがassignされたらassigned?はtrueになる" do
         node = Node.get(:fold)
         assert_equal false, node.assigned?
         true while node.push_exp(0)
         lambda = Node.get(:lambda)
         true while lambda.push_exp(0)
-        lambda.push_id(:x)
-        lambda.push_id(:y)
         node.lambda = lambda
         assert_equal true, node.assigned?
         assert_equal true, lambda.assigned?
