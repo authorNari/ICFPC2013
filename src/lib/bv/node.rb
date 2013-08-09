@@ -3,13 +3,17 @@ class BV
     def initialize
       @exps = []
       @ids = []
+      # 割り当て可能なexpの上限
       @assignable_exp_max = 0
+      # 割り当て可能なidの上限
       @assignable_id_max = 0
+      # 保持するexp数
+      @exp_size = 0
       @has_lambda = false
       @parent = nil
     end
     attr_accessor :parent
-    attr_reader :assignable_exp_max, :assignable_id_max
+    attr_reader :assignable_exp_max, :assignable_id_max, :exp_size
 
     def self.get(op)
       case op
@@ -82,10 +86,19 @@ class BV
       return "#<BV::Node: #{to_a.to_s}>"
     end
 
+    # 属するNode全体がアサイン済みであるか
+    def assigned?
+      res = (@exps.size == @assignable_exp_max &&
+        @ids.size == @assignable_id_max)
+      res = res && !@lambda.nil? if has_lambda?
+      res = res && @parent.assigned? if @parent
+      return res
+    end
+
     class If0 < Node
       def initialize
         super
-        @assignable_exp_max = 3
+        @exp_size = @assignable_exp_max = 3
       end
 
       def to_a
@@ -97,6 +110,7 @@ class BV
       def initialize
         super
         @assignable_exp_max = 2
+        @exp_size = 3
         @has_lambda = true
         @lambda = nil
       end
@@ -115,7 +129,9 @@ class BV
       def initialize
         super
         @assignable_exp_max = 1
+        @exp_size = 4
         @has_lambda = true
+        @lambda = true # dummy
       end
 
       def to_a
@@ -126,7 +142,7 @@ class BV
     class Lambda < Node
       def initialize
         super
-        @assignable_exp_max = 1
+        @exp_size = @assignable_exp_max = 1
         @assignable_id_max = 2
       end
 
@@ -138,7 +154,7 @@ class BV
     class OP1 < Node
       def initialize(op)
         super()
-        @assignable_exp_max = 1
+        @exp_size = @assignable_exp_max = 1
         @op = op
       end
 
@@ -150,7 +166,7 @@ class BV
     class OP2 < Node
       def initialize(op)
         super()
-        @assignable_exp_max = 2
+        @exp_size = @assignable_exp_max = 2
         @op = op
       end
 

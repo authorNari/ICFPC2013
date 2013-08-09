@@ -14,6 +14,13 @@ class BV
         true while if0.push_exp(0)
         assert_equal [:if0, 0, 0, 0], if0.to_a
       end
+
+      should "すべてexpがassignされたらassigned?はtrueになる" do
+        if0 = Node.get(:if0)
+        assert_equal false, if0.assigned?
+        true while if0.push_exp(0)
+        assert_equal [:if0, 0, 0, 0], if0.to_a
+      end
     end
 
     context "Lambdaクラス" do
@@ -35,6 +42,14 @@ class BV
         true while lambda.push_id(:x)
         assert_equal [:lambda, [:x, :x], 0], lambda.to_a
       end
+
+      should "すべてexp, idがassignされたらassigned?はtrueになる" do
+        lambda = Node.get(:lambda)
+        assert_equal false, lambda.assigned?
+        true while lambda.push_exp(0)
+        true while lambda.push_id(:x)
+        assert_equal true, lambda.assigned?
+      end
     end
 
     context "TFoldクラス" do
@@ -50,6 +65,13 @@ class BV
         node = Node.get(:tfold)
         true while node.push_exp(0)
         assert_equal [:lambda, [:x], [:fold, :x, 0, [:lambda, [:x, :y], 0]]], node.to_a
+      end
+
+      should "すべてexp, idがassignされたらassigned?はtrueになる" do
+        node = Node.get(:tfold)
+        assert_equal false, node.assigned?
+        true while node.push_exp(0)
+        assert_equal true, node.assigned?
       end
     end
 
@@ -71,6 +93,19 @@ class BV
         lambda.push_id(:y)
         node.lambda = lambda
         assert_equal [:fold, 0, 0, [:lambda, [:x, :y], 0]], node.to_a
+      end
+
+      should "すべてexp, idがassignされたらassigned?はtrueになる" do
+        node = Node.get(:fold)
+        assert_equal false, node.assigned?
+        true while node.push_exp(0)
+        lambda = Node.get(:lambda)
+        true while lambda.push_exp(0)
+        lambda.push_id(:x)
+        lambda.push_id(:y)
+        node.lambda = lambda
+        assert_equal true, node.assigned?
+        assert_equal true, lambda.assigned?
       end
     end
 
