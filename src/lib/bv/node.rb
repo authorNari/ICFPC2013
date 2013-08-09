@@ -81,6 +81,20 @@ class BV
       return res
     end
 
+    # 一番上のnode取得
+    def root
+      if parent.nil?
+        self
+      else
+        t = parent
+        while true
+          break if t.parent.nil?
+          t = parent.parent
+        end
+        t
+      end
+    end
+
     class If0 < Node
       def initialize
         super
@@ -127,6 +141,7 @@ class BV
     end
 
     class Lambda < Node
+      # 引数の数を指定。デフォルトは2。
       def initialize(arg_num=2)
         super()
         @exp_size = @assignable_exp_max = 1

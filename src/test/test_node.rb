@@ -97,6 +97,17 @@ class BV
         assert_equal true, node.assigned?
         assert_equal true, lambda.assigned?
       end
+
+      should "rootはFoldになる" do
+        node = Node.get(:fold)
+        assert_equal false, node.assigned?
+        true while node.push_exp(0)
+        lambda = Node.get(:lambda)
+        true while lambda.push_exp(0)
+        node.lambda = lambda
+        assert_equal Node::Fold, node.root.class
+        assert_equal Node::Fold, lambda.root.class
+      end
     end
 
     context "OP1クラス" do
