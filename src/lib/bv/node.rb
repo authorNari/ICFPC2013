@@ -127,14 +127,15 @@ class BV
     end
 
     class Lambda < Node
-      def initialize
-        super
+      def initialize(arg_num=2)
+        super()
         @exp_size = @assignable_exp_max = 1
         @ids = []
+        @arg_num = arg_num
         if @parent
-          2.times { @ids << @parent.selectable_ids.last.to_s.succ.to_sym }
+          arg_num.times { @ids << @parent.selectable_ids.last.to_s.succ.to_sym }
         else
-          @ids = [:a, :b]
+          @ids = (arg_num == 1 ? [:a] : [:a, :b])
         end
       end
 
