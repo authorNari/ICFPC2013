@@ -59,7 +59,13 @@ class BV
       when *OP2
         1 + ast_size(ast[1]) + ast_size(ast[2])
       end
+    else
+      raise "unexpected ast: #{ast}"
     end
+  end
+
+  def op(ast)
+    _op(ast).uniq
   end
 
   private
@@ -159,5 +165,32 @@ class BV
   # "(" plus e1 e2 ")"
   def plus(e1, e2)
     eval_ex(e1) + eval_ex(e2)
+  end
+
+  def _op(ast)
+    case ast
+    when Numeric, Symbol
+      []
+    when Array
+      method = ast.first
+      case method
+      when :lambda
+        if ast[2].is_a?(Array) && ast[2].first == :fold
+          [:tfold] + _op(ast[2][3].last)
+        else
+          _op(ast[2])
+        end
+      when :if0
+        [:if0] + _op(ast[1]) + _op(ast[2]) + _op(ast[3])
+      when :fold
+        [:fold] + _op[ast[1]] + _op(ast[2]) + _op(ast[3].last)
+      when *OP1
+        [method] + _op(ast[1])
+      when *OP2
+        [method] + _op(ast[1]) + _op(ast[2])
+      end
+    else
+      raise "unexpected ast: #{ast}"
+    end
   end
 end

@@ -49,4 +49,21 @@ class TestBV < Test::Unit::TestCase
     ast = @bv.parse(prog)
     assert_equal 30, @bv.ast_size(ast)
   end
+
+  should "opが正しいこと" do
+    prog = "(lambda (x_47225) (or (if0 (shr1 x_47225) (plus (if0 (xor (shr16 (shl1 (shl1 (shr16 (shl1 (or (shl1 1) (shr1 (and (shr16 (plus x_47225 0)) (shl1 0))))))))) 1) 0 0) 0) x_47225) 1))"
+    ast = @bv.parse(prog)
+    assert_equal(["if0", "or", "plus", "shl1", "shr1", "shr16", "xor", "and"].map(&:to_sym).sort,
+      @bv.op(ast).sort)
+
+    prog = "(lambda (x_20259) (fold x_20259 0 (lambda (x_20259 x_20260) (xor (if0 (xor x_20260 (not (shl1 0))) x_20259 x_20260) x_20259))))"
+    ast = @bv.parse(prog)
+    assert_equal([
+        "if0",
+        "not",
+        "shl1",
+        "tfold",
+        "xor"].map(&:to_sym).sort,
+      @bv.op(ast).sort)
+  end
 end
