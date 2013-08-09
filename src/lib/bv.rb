@@ -41,7 +41,25 @@ class BV
     @var_tables.pop
   end
 
-  def program_size
+  def ast_size(ast)
+    case ast
+    when Numeric, Symbol
+      1
+    when Array
+      method = ast.first
+      case method
+      when :lambda
+        1 + ast_size(ast[2])
+      when :if0
+        1 + ast_size(ast[1]) + ast_size(ast[2]) + ast_size(ast[3])
+      when :fold
+        2 + ast_size(ast[1]) + ast_size(ast[2]) + ast_size(ast[3].last)
+      when *OP1
+        1 + ast_size(ast[1])
+      when *OP2
+        1 + ast_size(ast[1]) + ast_size(ast[2])
+      end
+    end
   end
 
   private

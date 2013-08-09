@@ -35,4 +35,18 @@ class TestBV < Test::Unit::TestCase
     ast = @bv.parse(prog)
     assert_equal 0x001119A22AB33BC4, @bv.eval_program(ast, 0x22334455667788)
   end
+
+  should "ast_sizeのサイズが正しいこと" do
+    prog = "(lambda (x_33818) (fold (plus (and (shr16 (shl1 1)) 1) 1) x_33818 (lambda (x_33819 x_33820) (or x_33819 (shr4 x_33820)))))"
+    ast = @bv.parse(prog)
+    assert_equal 15, @bv.ast_size(ast)
+
+    prog = "(lambda (x_6410) (xor (or (shl1 1) x_6410) x_6410))"
+    ast = @bv.parse(prog)
+    assert_equal 7, @bv.ast_size(ast)
+
+    prog = "(lambda (x_47225) (or (if0 (shr1 x_47225) (plus (if0 (xor (shr16 (shl1 (shl1 (shr16 (shl1 (or (shl1 1) (shr1 (and (shr16 (plus x_47225 0)) (shl1 0))))))))) 1) 0 0) 0) x_47225) 1))"
+    ast = @bv.parse(prog)
+    assert_equal 30, @bv.ast_size(ast)
+  end
 end
