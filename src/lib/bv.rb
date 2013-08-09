@@ -56,10 +56,9 @@ class BV
   def eval_ex(e)
     case e
     when Symbol
-      @var_tables[-1][e]
-      # value = @var_tables.reverse_each.find{|var| var[e] }
-      # raise "undefined variable: #{e}" if value.nil?
-      # return value
+      value = @var_tables.reverse_each.find{|var| break var[e] if var[e] }
+      raise "undefined variable: #{e}" if value.nil?
+      return value
     when Array
       method = e.first
       case method
