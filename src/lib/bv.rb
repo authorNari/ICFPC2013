@@ -51,16 +51,20 @@ class BV
       method = ast.first
       case method
       when :lambda
-        1 + ast_size(ast[2])
+        1 + ast_size(ast[2]).to_i
       when :if0
-        1 + ast_size(ast[1]) + ast_size(ast[2]) + ast_size(ast[3])
+        1 + ast_size(ast[1]).to_i + ast_size(ast[2]).to_i + ast_size(ast[3]).to_i
       when :fold
-        2 + ast_size(ast[1]) + ast_size(ast[2]) + ast_size(ast[3].last)
+        2 + ast_size(ast[1]).to_i + ast_size(ast[2]).to_i + ast_size(ast[3].last).to_i
       when *OP1
-        1 + ast_size(ast[1])
+        1 + ast_size(ast[1]).to_i
       when *OP2
-        1 + ast_size(ast[1]) + ast_size(ast[2])
+        1 + ast_size(ast[1]).to_i + ast_size(ast[2]).to_i
+      when nil
+        0
       end
+    when nil
+      0
     else
       raise "unexpected ast: #{ast}"
     end

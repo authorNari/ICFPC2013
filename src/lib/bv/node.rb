@@ -9,6 +9,7 @@ class BV
       @exp_size = 0
       @has_lambda = false
       @parent = nil
+      @self_size = 1
     end
     attr_accessor :parent
     attr_reader :assignable_exp_max, :exp_size
@@ -94,6 +95,11 @@ class BV
       end
     end
 
+    # 子供を含めたサイズの合計
+    def size
+      @self_size + @exps.map(&:size).inject(&:+).to_i
+    end
+
     class If0 < Node
       def initialize
         super
@@ -111,16 +117,19 @@ class BV
         @assignable_exp_max = 2
         @exp_size = 4
         @has_lambda = true
-        @lambda = nil
+        @lambda = Lambda.new(2, self)
+        @self_size = 2
       end
-
-      def lambda=(node)
-        @lambda = node
-        node.parent = self
-      end
+      attr_reader :lambda
 
       def to_a
         [:fold] << @exps[0].to_a << @exps[1].to_a << @lambda.to_a
+      end
+
+      def size
+        res = super
+        res += @lambda.size if @lambda
+        res
       end
     end
 
@@ -131,6 +140,7 @@ class BV
         @exp_size = 5
         @has_lambda = false
         @ids = [:a, :b]
+        @self_size = 1+2+1+1
       end
 
       def to_a
@@ -140,14 +150,21 @@ class BV
 
     class Lambda < Node
       # 引数の数を指定。デフォルトは2。
-      def initialize(arg_num=2)
+      def initialize(arg_num=2, parent=nil)
         super()
         @exp_size = @assignable_exp_max = 1
         @ids = []
         @arg_num = arg_num
         if parent
-          arg_num.times { @ids << parent.selectable_ids.last.to_s.succ.to_sym }
+          self.parent = parent
+          @self_size = 0 # Fold側で計算済み
+          last_arg = (parent.selectable_ids.last || :a)
+          arg_num.times do
+            @ids << last_arg.to_sym
+            last_arg = last_arg.succ
+          end
         else
+          @self_size = 1
           @ids = (arg_num == 1 ? [:a] : [:a, :b])
         end
       end

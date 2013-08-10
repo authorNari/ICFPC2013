@@ -82,9 +82,7 @@ class BV
       should "push_exp後のto_aは[:fold, e1, e2, [:lambda, [id, id], e3]]の形式であること" do
         node = Node.get(:fold)
         true while node.push_exp(0)
-        lambda = Node.get(:lambda)
-        true while lambda.push_exp(0)
-        node.lambda = lambda
+        true while node.lambda.push_exp(0)
         assert_equal [:fold, 0, 0, [:lambda, [:a, :b], 0]], node.to_a
       end
 
@@ -92,22 +90,42 @@ class BV
         node = Node.get(:fold)
         assert_equal false, node.assigned?
         true while node.push_exp(0)
-        lambda = Node.get(:lambda)
-        true while lambda.push_exp(0)
-        node.lambda = lambda
+        true while node.lambda.push_exp(0)
         assert_equal true, node.assigned?
-        assert_equal true, lambda.assigned?
+        assert_equal true, node.lambda.assigned?
       end
 
       should "rootはFoldになる" do
         node = Node.get(:fold)
         assert_equal false, node.assigned?
         true while node.push_exp(0)
-        lambda = Node.get(:lambda)
+        lambda = node.lambda
         true while lambda.push_exp(0)
-        node.lambda = lambda
         assert_equal Node::Fold, node.root.class
         assert_equal Node::Fold, lambda.root.class
+      end
+
+      should "tree_sizeは子供の分のサイズも合計して返す" do
+        root = Node.get(:tfold)
+        node = root.push_exp(:and)
+        node.push_exp(:not).push_exp(0)
+        assert_equal BV.new.ast_size(root.to_a), root.size
+
+        if0 = node.push_exp(:if0)
+        assert_equal BV.new.ast_size(root.to_a), root.size
+
+        fold = if0.push_exp(:fold)
+        fold.push_exp(0)
+        fold.push_exp(0)
+        assert_equal BV.new.ast_size(root.to_a), root.size
+
+        assert_equal BV.new.ast_size(root.to_a), root.size
+        fold.lambda.push_exp(0)
+        if0.push_exp(0)
+        if0.push_exp(:a)
+        assert_equal BV.new.ast_size(root.to_a), root.size
+
+        assert_equal BV.new.ast_size(root.to_a), root.size
       end
     end
 
