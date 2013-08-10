@@ -7,8 +7,8 @@ class Solver
         [0xFFEA65DDD04A1B7B])
       bs.try_solve
 
-      bs = NaiveStrategy.new(
-        11, [:and, :if0, :shr16, :xor],
+      bs = BinStrategy.new(
+        10, [:and, :if0, :shr16, :xor],
         [0x1, 0x2, 0x3, 0x4], [0x0, 0x2, 0x0, 0x4])
       bs.try_solve
     end
