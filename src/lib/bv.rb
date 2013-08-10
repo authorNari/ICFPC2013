@@ -131,21 +131,12 @@ class BV
 
   # (" not e ")"
   def not(e)
-    [~eval_ex(e)].pack("Q").bytes.
-      each_with_index.
-      inject(0){|r,(byte,i)| r += byte << (8*i) }
+    ((1 << 64) - 1) & (~eval_ex(e))
   end
 
   # (" shl1 e ")"
   def shl1(e)
-    r = eval_ex(e) << 1
-    if r > 0xFFFFFFFFFFFFFFFF
-      [r].pack("Q").bytes.
-        each_with_index.
-        inject(0){|r,(byte,i)| r += byte << (8*i) }
-    else
-      r
-    end
+     ((1 << 64) - 1) & (eval_ex(e) << 1)
   end
 
   # (" shr1 e ")"
