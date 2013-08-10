@@ -11,7 +11,7 @@ class Solver
 
     should "size5, op重複なしの組み合わせが解ける" do
       ns = NaiveStrategy.new(
-        5, [:and, :if0, :shr16, :xor],
+        5, [:plus, :shr16],
         [0x1, 0x2, 0x3, 0x4, 0x112233],
         [0x0, 0x0, 0x0, 0x0, 0x11])
       assert_equal(

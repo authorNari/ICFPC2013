@@ -70,6 +70,11 @@ class BV
     _op(ast).uniq
   end
 
+  # ASTをプログラム文字列へ
+  def ast_to_program(ast)
+    return ast.to_s.gsub("[", "(").gsub("]", ")").gsub(":", "").gsub(",", "")
+  end
+
   private
   #  expression e ::= "0" | "1" | id
   #               | "(" "if0" e e e ")"
