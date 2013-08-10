@@ -45,8 +45,7 @@ class Solver
         node.assignable_exp_max.times.map{[0, 1, *node.selectable_ids]}.flatten
       #p candidate: candidate
       #p exp_max: node.assignable_exp_max
-      candidate.permutation(node.assignable_exp_max) do |comb|
-        #p comb: comb
+      candidate.permutation(node.assignable_exp_max).to_a.uniq.each do |comb|
         comb.map {|c| node.push_exp(c) }.each do |exp|
           if n = naive_search(exp, unselected_ops(ops, comb))
             return n
