@@ -12,7 +12,7 @@ class BV
       @self_size = 1
     end
     attr_accessor :parent
-    attr_reader :assignable_exp_max, :exp_size
+    attr_reader :assignable_exp_max, :exp_size, :exps
 
     def self.get(op)
       case op
@@ -38,7 +38,7 @@ class BV
     end
 
     def push_exp(v)
-      if @exps.size == assignable_exp_max
+      if exps.size == assignable_exp_max
         return nil
       end
       e = self.class.get(v)
@@ -48,7 +48,7 @@ class BV
     end
 
     def pop_exp
-      e = @exps.pop
+      e = exps.pop
       e.parent = nil if not e.nil?
       return e
     end
@@ -75,8 +75,8 @@ class BV
 
     # 子Nodeがアサイン済みであるか
     def assigned?
-      res = (@exps.size == @assignable_exp_max)
-      res &&= @exps.all?{|e| e.assigned? }
+      res = (exps.size == @assignable_exp_max)
+      res &&= exps.all?{|e| e.assigned? }
       res &&= (!@lambda.nil? && @lambda.assigned?) if has_lambda?
       return res
     end
@@ -97,7 +97,7 @@ class BV
 
     # 子供を含めたサイズの合計
     def size
-      @self_size + @exps.map(&:size).inject(&:+).to_i
+      @self_size + exps.map(&:size).inject(&:+).to_i
     end
 
     class If0 < Node
@@ -107,14 +107,14 @@ class BV
       end
 
       def to_a
-        [:if0] << @exps[0].to_a << @exps[1].to_a << @exps[2].to_a
+        [:if0] << exps[0].to_a << exps[1].to_a << exps[2].to_a
       end
     end
 
     class Fold < Node
       def initialize
         super
-        @assignable_exp_max = 2
+        @assignable_exp_max = 3
         @exp_size = 4
         @has_lambda = true
         @lambda = Lambda.new(2, self)
@@ -122,14 +122,30 @@ class BV
       end
       attr_reader :lambda
 
-      def to_a
-        [:fold] << @exps[0].to_a << @exps[1].to_a << @lambda.to_a
+      # 最後はlambdaの方のexpへ格納
+      def push_exp(e)
+        if exps.size < 2
+          super
+        else
+          @lambda.push_exp(e)
+        end
       end
 
-      def size
-        res = super
-        res += @lambda.size if @lambda
-        res
+      def pop_exp(e)
+        if exps.size < 2
+          super
+        else
+          @lambda.pop_exp
+        end
+      end
+
+      def to_a
+        [:fold] << exps[0].to_a << exps[1].to_a << @lambda.to_a
+      end
+
+      # lambdaの分のexpも返す
+      def exps
+        @exps + @lambda.exps
       end
     end
 
@@ -144,7 +160,7 @@ class BV
       end
 
       def to_a
-        [:lambda, [:a], [:fold, :a, 0, [:lambda, [:a, :b], @exps[0].to_a]]]
+        [:lambda, [:a], [:fold, :a, 0, [:lambda, [:a, :b], exps[0].to_a]]]
       end
     end
 
@@ -170,7 +186,7 @@ class BV
       end
 
       def to_a
-        [:lambda] << @ids << @exps[0].to_a
+        [:lambda] << @ids << exps[0].to_a
       end
     end
 
@@ -182,7 +198,7 @@ class BV
       end
 
       def to_a
-        [@op] << @exps[0].to_a
+        [@op] << exps[0].to_a
       end
     end
 
@@ -194,7 +210,7 @@ class BV
       end
 
       def to_a
-        [@op] << @exps[0].to_a << @exps[1].to_a
+        [@op] << exps[0].to_a << exps[1].to_a
       end
     end
 

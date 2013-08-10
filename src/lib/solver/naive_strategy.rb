@@ -58,14 +58,6 @@ class Solver
           end
         end
 
-        if node.has_lambda?
-          if n = naive_search(node.lambda, unselected_ops(ops, comb))
-            return n
-          end
-
-          node.lambda = nil
-        end
-
         while node.pop_exp; end
       end
 

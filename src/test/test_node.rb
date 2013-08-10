@@ -71,8 +71,8 @@ class BV
     end
 
     sub_test_case "Foldクラス" do
-      test "assignable_exp_maxは2であること" do
-        assert_equal 2, Node.get(:fold).assignable_exp_max
+      test "assignable_exp_maxは3であること" do
+        assert_equal 3, Node.get(:fold).assignable_exp_max
       end
 
       test "lambdaはもっている" do
@@ -90,7 +90,6 @@ class BV
         node = Node.get(:fold)
         assert_equal false, node.assigned?
         true while node.push_exp(0)
-        true while node.lambda.push_exp(0)
         assert_equal true, node.assigned?
         assert_equal true, node.lambda.assigned?
       end
