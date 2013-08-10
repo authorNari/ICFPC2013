@@ -55,5 +55,15 @@ class Solver
         "(lambda (a) (plus (shr16 a) 0))",
         ns.try_solve)
     end
+
+    should "size5, op重複なし, notの組み合わせが解ける" do
+      ns = NaiveStrategy.new(
+        5,  ["not", "shl1", "shr4"].map(&:to_sym),
+        [0xacd1117daf242a],
+        [0xFFEA65DDD04A1B7B])
+      assert_equal(
+        "(lambda (a) (not (shl1 (shr4 a))))",
+        ns.try_solve)
+    end
   end
 end

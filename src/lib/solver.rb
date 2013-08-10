@@ -19,7 +19,7 @@ class Solver
           outputs = [res['values'][1].to_i(16)]
         end
       else
-        return res
+        return false
       end
     end
   end

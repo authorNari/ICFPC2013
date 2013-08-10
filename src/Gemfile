@@ -1,5 +1,10 @@
 source 'http://rubygems.org'
 
+group :server do
+  gem 'sinatra'
+  gem 'haml'
+end
+
 group :test do
   gem 'test-unit', '~> 2.5.5'
   gem 'shoulda-context', '~> 1.1.4'
