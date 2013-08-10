@@ -66,4 +66,10 @@ class TestBV < Test::Unit::TestCase
         "xor"].map(&:to_sym).sort,
       @bv.op(ast).sort)
   end
+
+  should "ast_to_programの結果が正しいこと" do
+    prog = "(lambda (x_47225) (or (if0 (shr1 x_47225) (plus (if0 (xor (shr16 (shl1 (shl1 (shr16 (shl1 (or (shl1 1) (shr1 (and (shr16 (plus x_47225 0)) (shl1 0))))))))) 1) 0 0) 0) x_47225) 1))"
+    ast = @bv.parse(prog)
+    assert_equal prog, @bv.ast_to_program(ast)
+  end
 end
