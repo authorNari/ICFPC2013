@@ -4,9 +4,8 @@ $LOAD_PATH.unshift(File.join(top_dir, "lib"))
 
 require 'solver'
 
-begin
-  res = Api.train
-  sleep 5
-end while res['size'] > 12
+operators = (eval(ARGV[1].to_s) || [])
+res = Api.train(size: ARGV[0], operators: operators)
 
+puts res['challenge']
 puts Solver.new.solve(res['id'], res['size'], res['operators'])

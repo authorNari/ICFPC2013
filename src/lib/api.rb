@@ -7,8 +7,8 @@ module Api
   @@host = "http://icfpc2013.cloudapp.net"
 
   module_function
-  def train
-    post('train')
+  def train(size: nil, operators: [])
+    post('train', JSON.generate(size: size.to_i, operators: operators))
   end
 
   def guess(id: nil, program: nil)
