@@ -48,6 +48,10 @@ class TestBV < Test::Unit::TestCase
     prog = "(lambda (x_47225) (or (if0 (shr1 x_47225) (plus (if0 (xor (shr16 (shl1 (shl1 (shr16 (shl1 (or (shl1 1) (shr1 (and (shr16 (plus x_47225 0)) (shl1 0))))))))) 1) 0 0) 0) x_47225) 1))"
     ast = @bv.parse(prog)
     assert_equal 30, @bv.ast_size(ast)
+
+    prog = "(lambda (x_8649) (fold x_8649 0 (lambda (x_8649 x_8650) (shr4 (plus (shr4 0) x_8649)))))"
+    ast = @bv.parse(prog)
+    assert_equal 10, @bv.ast_size(ast)
   end
 
   should "opが正しいこと" do

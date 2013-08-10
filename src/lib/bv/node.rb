@@ -109,7 +109,7 @@ class BV
       def initialize
         super
         @assignable_exp_max = 2
-        @exp_size = 3
+        @exp_size = 4
         @has_lambda = true
         @lambda = nil
       end
@@ -128,13 +128,13 @@ class BV
       def initialize
         super
         @assignable_exp_max = 1
-        @exp_size = 4
+        @exp_size = 5
         @has_lambda = false
         @ids = [:a, :b]
       end
 
       def to_a
-        [:lambda, [:a], [:fold, :a, 0, [:lambda, [:a, :b], *@exps[0].to_a]]]
+        [:lambda, [:a], [:fold, :a, 0, [:lambda, [:a, :b], @exps[0].to_a]]]
       end
     end
 

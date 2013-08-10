@@ -4,10 +4,11 @@ class Solver
       super
       # アサイン済みのoperator
       @assigned_ops = []
+
       # e[n]それぞれの重複を許す回数。nはopが保持するeの数
       # e[0]は不使用
-      # TODO: 重複可能数の計算
-      @e_dup_max = [nil, 1, 1, 1]
+      @e_dup_max = calc_e_dep_max
+
       # 候補opの初期化
       init_candidate(@operators)
     end
@@ -92,6 +93,35 @@ class Solver
       }
       #p af_ops: ops
       return ops.compact
+    end
+
+    # それぞれのoperatorのeに応じた重複可能数の計算
+    def calc_e_dep_max
+      e_dup_max = []
+
+      # 全体のexpのサイズ
+      all = @operators.map{|o| BV::Node.get(o).exp_size }.inject(&:+)
+      # Lambdaの分1を足す
+      all += 1 if not @operators.include?(:tfold)
+
+      exp_maxs = @operators.reject{|o| o == :tfold }.map do |o|
+        BV::Node.get(o).exp_size
+      end.uniq.sort
+
+      exp_maxs.each do |max|
+        # それぞれ持ちうるeを足して全体のサイズから引くとeを入れる可能な数がでる
+        room = @size - all
+
+        # あといくついれられるか
+        if room >= (max + 1)
+          # (op 1) という形を入れたとすると
+          room -= (max + 1)
+          e_dup_max[max] = (room / max) + 2
+        else
+          e_dup_max[max] = 1
+        end
+      end
+      return e_dup_max
     end
   end
 end
