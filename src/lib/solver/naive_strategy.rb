@@ -35,14 +35,9 @@ class Solver
 
       # すべて割り当てて済み && 未選択のオペレータがない
       #p assigned: node.root.assigned?, node: node.root.to_a.to_s
-      if node.root.assigned? && ops_candidate.empty?
+      if node.root.assigned? && ops_candidate.empty? && node.size != @size
         #p "------ assigned -------"
-        # 正しい式か？
-        if correct?(node.root.to_a)
-          return node.root
-        else
-          return false
-        end
+        return do_complete_node(node)
       end
 
       # 候補の組み合わせを作ってexp分はめていく
@@ -114,6 +109,14 @@ class Solver
         end
       end
       return e_dup_max
+    end
+
+    def do_complete_node(node)
+      if correct?(node.root.to_a)
+        return node.root
+      else
+        return false
+      end
     end
   end
 end

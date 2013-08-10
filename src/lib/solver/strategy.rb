@@ -14,7 +14,6 @@ class Solver
 
     private
     def correct?(ast)
-      return if @bv.ast_size(ast) != @size
       res = @inputs.zip(@outputs).all? do |i, o|
         o == @bv.eval_program(ast, i)
       end
