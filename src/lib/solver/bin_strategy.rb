@@ -20,11 +20,12 @@ class Solver
     end
 
     def do_complete_node(node)
-      ast = node.root.to_a
-      key = @try_inputs.map do |i|
-        [i, @bv.eval_program(ast, i)]
-      end
-      @bin_dict[key] = ast
+      p node.root.to_a
+      # ast = node.root.to_a
+      # key = @try_inputs.map do |i|
+      #   [i, @bv.eval_program(ast, i)]
+      # end
+      # @bin_dict[key] = ast
       return false
     end
   end

@@ -3,7 +3,7 @@ class Solver
     priority :never
     test "候補の辞書作りがうまくいくかな？" do
       bs = BinStrategy.new(
-        6,  ["not", "shl1", "shr4"].map(&:to_sym),
+        8,  ["or", "plus", "shr16"].map(&:to_sym),
         [0xacd1117daf242a],
         [0xFFEA65DDD04A1B7B])
       bs.try_solve
