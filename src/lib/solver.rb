@@ -1,5 +1,6 @@
 require 'bv'
 require 'api'
+require 'timeout'
 
 class Solver
   def solve(id, size, operators)
@@ -8,20 +9,23 @@ class Solver
     res = Api.eval(id: id, inputs: inputs)
     outputs = res['outputs'].map{|o| o.to_i(16) }
 
-    while true
-      @strategy = NaiveStrategy.new(size, operators, inputs, outputs)
-      if answer = @strategy.try_solve
-        res = Api.guess(id: id, program: answer)
-        if res['status'] == 'win'
-          return true
+    timeout(300) do
+      while true
+        @strategy = NaiveStrategy.new(size, operators, inputs, outputs)
+        if answer = @strategy.try_solve
+          res = Api.guess(id: id, program: answer)
+          if res['status'] == 'win'
+            return true
+          else
+            inputs = [res['values'][0].to_i(16)]
+            outputs = [res['values'][1].to_i(16)]
+          end
         else
-          inputs = [res['values'][0].to_i(16)]
-          outputs = [res['values'][1].to_i(16)]
+          return false
         end
-      else
-        return false
       end
     end
+    return false
   end
 end
 

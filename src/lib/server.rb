@@ -28,6 +28,7 @@ get '/train' do
   @title = 'train'
   @json = []
   5.times{ @json << Api.train }
+  sleep 10
   index
 end
 
@@ -87,7 +88,7 @@ __END__
     - @json.each do |json|
       - tr_klass = []
       - tr_klass << (json['timeLeft?'] ? 'done' : nil)
-      - tr_klass << ((json['size'].to_i <= 12) ? 'chance' : nil)
+      - tr_klass << ((json['size'].to_i <= 10) ? 'chance' : nil)
       - tr_klass = tr_klass.compact.join(",")
       %tr{class: tr_klass}
         %td= json['id']
