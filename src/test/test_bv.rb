@@ -76,4 +76,10 @@ class TestBV < Test::Unit::TestCase
     ast = @bv.parse(prog)
     assert_equal prog, @bv.ast_to_program(ast)
   end
+
+  should "notの結果が正しいこと" do
+    prog = "(lambda (x) (not x))"
+    ast = @bv.parse(prog)
+    assert_equal 0xFFFFFFFFFFEEDDCC, @bv.eval_program(ast, 0x112233)
+  end
 end

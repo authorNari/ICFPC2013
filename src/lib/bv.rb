@@ -131,7 +131,9 @@ class BV
 
   # (" not e ")"
   def not(e)
-    ~eval_ex(e)
+    [~eval_ex(e)].pack("Q").bytes.
+      each_with_index.
+      inject(0){|r,(byte,i)| r += byte << (8*i) }
   end
 
   # (" shl1 e ")"
