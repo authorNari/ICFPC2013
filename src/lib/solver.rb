@@ -31,3 +31,4 @@ end
 
 require 'solver/strategy'
 require 'solver/naive_strategy'
+require 'solver/bin_strategy'
