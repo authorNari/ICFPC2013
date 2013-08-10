@@ -21,7 +21,7 @@ class Solver
         node = naive_search(BV::Node::Lambda.new(1), @ops_candidate)
       end
       if node
-        return node.to_a
+        return @bv.ast_to_program(node.to_a)
       else
         return false
       end

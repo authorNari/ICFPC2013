@@ -33,7 +33,7 @@ class Solver
         [:plus, :shr4, :tfold],
         [1, 2, 3, 4, 0x112233, 0xF000000000000000], [0x0, 0x0, 0x0, 0x0, 0x0, 0x0F])
       assert_equal(
-        [:lambda, [:a], [:fold, :a, 0, [:lambda, [:a, :b], [:shr4, [:plus, [:shr4, 0], :a]]]]],
+        "(lambda (a) (fold a 0 (lambda (a b) (shr4 (plus (shr4 0) a)))))",
         ns.try_solve)
     end
 
@@ -42,7 +42,7 @@ class Solver
         10, [:and, :if0, :shr16, :xor],
         [0x1, 0x2, 0x3, 0x4], [0x0, 0x2, 0x0, 0x4])
       assert_equal(
-        [:lambda, [:a], [:if0, [:and, [:xor, [:shr16, 0], :a], 1], :a, 0]],
+        "(lambda (a) (if0 (and (xor (shr16 0) a) 1) a 0))",
         ns.try_solve)
     end
 
@@ -52,7 +52,7 @@ class Solver
         [0x1, 0x2, 0x3, 0x4, 0x112233],
         [0x0, 0x0, 0x0, 0x0, 0x11])
       assert_equal(
-        [:lambda, [:a], [:plus, [:shr16, :a], 0]],
+        "(lambda (a) (plus (shr16 a) 0))",
         ns.try_solve)
     end
   end
