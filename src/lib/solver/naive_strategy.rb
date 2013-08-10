@@ -59,7 +59,6 @@ class Solver
         end
 
         if node.has_lambda?
-          node.lambda = BV::Lambda.new
           if n = naive_search(node.lambda, unselected_ops(ops, comb))
             return n
           end

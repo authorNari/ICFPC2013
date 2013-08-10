@@ -3,13 +3,13 @@ class TestBV < Test::Unit::TestCase
     @bv = BV.new
   end
 
-  should "parse結果の構文木が正しいこと" do
+  test "parse結果の構文木が正しいこと" do
     expect = [:lambda, [:x], [:if0, [:and, [:not, :x], :x], 1, :x]]
     assert_equal expect, @bv.parse("(lambda (x) (if0 (and (not x) x) 1 x))")
   end
 
 "(lambda (x_7021) (fold x_7021 0 (lambda (x_7021 x_7022) (plus (shr4 (shr16 x_7022)) x_7021))))"
-  should "eval_programの結果が正しいこと" do
+  test "eval_programの結果が正しいこと" do
     prog = "(lambda (x) (fold x 0 (lambda (y z) (or y z))))"
     expect = 0x00000000000000ff
     assert_equal expect, @bv.eval_program(@bv.parse(prog), 0x1122334455667788)
@@ -36,7 +36,7 @@ class TestBV < Test::Unit::TestCase
     assert_equal 0x001119A22AB33BC4, @bv.eval_program(ast, 0x22334455667788)
   end
 
-  should "ast_sizeのサイズが正しいこと" do
+  test "ast_sizeのサイズが正しいこと" do
     prog = "(lambda (x_33818) (fold (plus (and (shr16 (shl1 1)) 1) 1) x_33818 (lambda (x_33819 x_33820) (or x_33819 (shr4 x_33820)))))"
     ast = @bv.parse(prog)
     assert_equal 15, @bv.ast_size(ast)
@@ -54,7 +54,7 @@ class TestBV < Test::Unit::TestCase
     assert_equal 10, @bv.ast_size(ast)
   end
 
-  should "opが正しいこと" do
+  test "opが正しいこと" do
     prog = "(lambda (x_47225) (or (if0 (shr1 x_47225) (plus (if0 (xor (shr16 (shl1 (shl1 (shr16 (shl1 (or (shl1 1) (shr1 (and (shr16 (plus x_47225 0)) (shl1 0))))))))) 1) 0 0) 0) x_47225) 1))"
     ast = @bv.parse(prog)
     assert_equal(["if0", "or", "plus", "shl1", "shr1", "shr16", "xor", "and"].map(&:to_sym).sort,
@@ -71,19 +71,19 @@ class TestBV < Test::Unit::TestCase
       @bv.op(ast).sort)
   end
 
-  should "ast_to_programの結果が正しいこと" do
+  test "ast_to_programの結果が正しいこと" do
     prog = "(lambda (x_47225) (or (if0 (shr1 x_47225) (plus (if0 (xor (shr16 (shl1 (shl1 (shr16 (shl1 (or (shl1 1) (shr1 (and (shr16 (plus x_47225 0)) (shl1 0))))))))) 1) 0 0) 0) x_47225) 1))"
     ast = @bv.parse(prog)
     assert_equal prog, @bv.ast_to_program(ast)
   end
 
-  should "notの結果が正しいこと" do
+  test "notの結果が正しいこと" do
     prog = "(lambda (x) (not x))"
     ast = @bv.parse(prog)
     assert_equal 0xFFFFFFFFFFEEDDCC, @bv.eval_program(ast, 0x112233)
   end
 
-  should "左シフトのオーバフローでは切り捨てること" do
+  test "左シフトのオーバフローでは切り捨てること" do
     prog = "(lambda (x) (shl1 x))"
     ast = @bv.parse(prog)
     assert_equal 0xFFFFFFFFFFDDBB98, @bv.eval_program(ast, 0xFFFFFFFFFFEEDDCC)

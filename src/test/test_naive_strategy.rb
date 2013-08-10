@@ -1,6 +1,6 @@
 class Solver
   class TestNaiveStrategy < Test::Unit::TestCase
-    should "重複可能数の計算が正しいか？" do
+    test "重複可能数の計算が正しいか？" do
       ns = NaiveStrategy.new(
         26, ["and", "if0", "not", "or", "shl1", "shr1", "shr4", "tfold", "xor"].map(&:to_sym), nil, nil)
       assert_equal [nil, 8, 4, 3], ns.send(:calc_e_dep_max)
@@ -26,7 +26,7 @@ class Solver
       assert_equal [nil, 1, 1], ns.send(:calc_e_dep_max)
     end
 
-    should "size10, op重複あり, tfoldの組み合わせが解ける" do
+    test "size10, op重複あり, tfoldの組み合わせが解ける" do
       # id: pVv6oAP4fOAutAfwJ7Ie6dta
       ns = NaiveStrategy.new(
         10,
@@ -37,7 +37,8 @@ class Solver
         ns.try_solve)
     end
 
-    should "size10, op重複なしの組み合わせが解ける" do
+    priority :never
+    test "size10, op重複なしの組み合わせが解ける" do
       ns = NaiveStrategy.new(
         10, [:and, :if0, :shr16, :xor],
         [0x1, 0x2, 0x3, 0x4], [0x0, 0x2, 0x0, 0x4])
@@ -46,7 +47,7 @@ class Solver
         ns.try_solve)
     end
 
-    should "size5, op重複なしの組み合わせが解ける" do
+    test "size5, op重複なしの組み合わせが解ける" do
       ns = NaiveStrategy.new(
         5, [:plus, :shr16],
         [0x1, 0x2, 0x3, 0x4, 0x112233],
@@ -56,7 +57,7 @@ class Solver
         ns.try_solve)
     end
 
-    should "size5, op重複なし, notの組み合わせが解ける" do
+    test "size5, op重複なし, notの組み合わせが解ける" do
       ns = NaiveStrategy.new(
         5,  ["not", "shl1", "shr4"].map(&:to_sym),
         [0xacd1117daf242a],
@@ -66,7 +67,7 @@ class Solver
         ns.try_solve)
     end
 
-    should "size4, op重複なし, 変数二度使いが解けるか" do
+    test "size4, op重複なし, 変数二度使いが解けるか" do
       ns = NaiveStrategy.new(
         4,  ["plus"].map(&:to_sym),
         [0xba5229dbae4577],

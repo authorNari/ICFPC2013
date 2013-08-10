@@ -7,7 +7,6 @@ GEM
     rack-protection (1.5.0)
       rack
     rr (1.1.1)
-    shoulda-context (1.1.4)
     sinatra (1.4.3)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -24,7 +23,6 @@ PLATFORMS
 DEPENDENCIES
   haml
   rr (~> 1.1.1)
-  shoulda-context (~> 1.1.4)
   sinatra
   test-unit (~> 2.5.5)
   test-unit-rr
