@@ -17,8 +17,8 @@ class Solver
           if res['status'] == 'win'
             return true
           else
-            inputs = [res['values'][0].to_i(16)]
-            outputs = [res['values'][1].to_i(16)]
+            inputs += [res['values'][0].to_i(16)]
+            outputs += [res['values'][1].to_i(16)]
           end
         else
           return false

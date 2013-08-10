@@ -34,7 +34,7 @@ class Solver
       #p "--------#{node}----------"
 
       # すべて割り当てて済み && 未選択のオペレータがない
-      #p assigned: node.root.assigned?
+      #p assigned: node.root.assigned?, node: node.root.to_a.to_s
       if node.root.assigned? && ops_candidate.empty?
         #p "------ assigned -------"
         # 正しい式か？
@@ -46,7 +46,8 @@ class Solver
       end
 
       # 候補の組み合わせを作ってexp分はめていく
-      candidate = ops_candidate + [0, 1, *node.selectable_ids]
+      candidate = ops_candidate + 
+        node.assignable_exp_max.times.map{[0, 1, *node.selectable_ids]}.flatten
       #p candidate: candidate
       #p exp_max: node.assignable_exp_max
       candidate.permutation(node.assignable_exp_max) do |comb|

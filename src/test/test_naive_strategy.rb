@@ -65,5 +65,15 @@ class Solver
         "(lambda (a) (not (shl1 (shr4 a))))",
         ns.try_solve)
     end
+
+    should "size4, op重複なし, 変数二度使いが解けるか" do
+      ns = NaiveStrategy.new(
+        4,  ["plus"].map(&:to_sym),
+        [0xba5229dbae4577],
+        [0x0174A453B75C8AEE])
+      assert_equal(
+        "(lambda (a) (plus a a))",
+        ns.try_solve)
+    end
   end
 end

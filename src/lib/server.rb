@@ -10,16 +10,8 @@ require 'sinatra'
 require 'haml'
 
 get '/' do
-  @title = 'myprombels'
-  # @json = [Api.myprombels]
-  @json = [
-    {"id"=>"018s6MMIauABBz1XPkfbsgtN",
-      "size"=>12,
-      "operators"=>["and", "if0", "plus", "shl1", "shr16", "tfold"]},
-    {"id"=>"01GSoTCyBHP5IBuUpKwj268K",
-      "size"=>23,
-      "operators"=>
-      ["and", "if0", "not", "or", "plus", "shl1", "shr1", "shr4", "xor"]}]
+  @title = 'myproblems'
+  @json = Api.myproblems
   index
 end
 
@@ -64,7 +56,7 @@ __END__
       background-color: #66cccc;
     }
     table tbody tr.done td {
-      background-color: sliver;
+      background-color: gray;
     }
   %body
     = yield
@@ -83,19 +75,20 @@ __END__
       %td operators
       %td solved?
       %td timeLeft
+      %td challenge
       %td= " "
   %tbody
     - @json.each do |json|
       - tr_klass = []
-      - tr_klass << (json['timeLeft?'] ? 'done' : nil)
-      - tr_klass << ((json['size'].to_i <= 10) ? 'chance' : nil)
-      - tr_klass = tr_klass.compact.join(",")
+      - tr_klass = 'chance' if json['size'].to_i <= 10
+      - tr_klass = 'done' if json['solved']
       %tr{class: tr_klass}
         %td= json['id']
         %td= json['size']
         %td= json['operators']
-        %td= json['solved?']
-        %td= json['timeLeft?']
+        %td= json['solved'].to_s
+        %td= json['timeLeft'].to_s
+        %td= json['challenge'].to_s
         %td
           %a{href: URI.escape("/solve?json=#{JSON.generate(json)}")}
             solve!
