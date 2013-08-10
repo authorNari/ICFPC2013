@@ -51,8 +51,9 @@ class BV
         assert_equal 1, Node.get(:tfold).assignable_exp_max
       end
 
-      should "lambdaはもっている" do
-        assert_equal true, Node.get(:tfold).has_lambda?
+      should "lambdaはもってない" do
+        # TFoldは特別扱い
+        assert_equal false, Node.get(:tfold).has_lambda?
       end
 
       should "push_expのto_aは[:lambda, [:x], [:fold, :x, 0, [:lambda, [:x, :y], e1]]]の形式であること" do

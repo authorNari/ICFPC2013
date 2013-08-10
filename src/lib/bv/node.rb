@@ -27,21 +27,20 @@ class BV
         OP1.new(op)
       when *BV::OP2
         OP2.new(op)
+      when 1, 0
+        Num.new(op)
+      when Symbol
+        Variable.new(op)
       else
         raise "unsupported opperator: #{op}"
       end
     end
 
-    def push_exp(e)
-      case e
-      when 1, 0
-        e = Num.new(e)
-      when Symbol
-        e = Variable.new(e)
-      end
+    def push_exp(v)
       if @exps.size == assignable_exp_max
         return nil
       end
+      e = self.class.get(v)
       @exps << e
       e.parent = self
       return e
@@ -49,7 +48,7 @@ class BV
 
     def pop_exp
       e = @exps.pop
-      e.parent = nil
+      e.parent = nil if not e.nil?
       return e
     end
 
@@ -63,7 +62,7 @@ class BV
 
     def selectable_ids
       if parent.nil?
-        []
+        @ids
       else
         @ids + parent.selectable_ids
       end
@@ -73,11 +72,11 @@ class BV
       return "#<BV::Node: #{to_a.to_s}>"
     end
 
-    # 属するNode全体がアサイン済みであるか
+    # 子Nodeがアサイン済みであるか
     def assigned?
       res = (@exps.size == @assignable_exp_max)
-      res = res && !@lambda.nil? if has_lambda?
-      res = res && @parent.assigned? if @parent
+      res &&= @exps.all?{|e| e.assigned? }
+      res &&= (!@lambda.nil? && @lambda.assigned?) if has_lambda?
       return res
     end
 
@@ -89,7 +88,7 @@ class BV
         t = parent
         while true
           break if t.parent.nil?
-          t = parent.parent
+          t = t.parent
         end
         t
       end
@@ -102,7 +101,7 @@ class BV
       end
 
       def to_a
-        [:if0] + @exps[0].to_a + @exps[1].to_a + @exps[2].to_a
+        [:if0] << @exps[0].to_a << @exps[1].to_a << @exps[2].to_a
       end
     end
 
@@ -121,7 +120,7 @@ class BV
       end
 
       def to_a
-        [:fold] + @exps[0].to_a + @exps[1].to_a << @lambda.to_a
+        [:fold] << @exps[0].to_a << @exps[1].to_a << @lambda.to_a
       end
     end
 
@@ -130,8 +129,7 @@ class BV
         super
         @assignable_exp_max = 1
         @exp_size = 4
-        @has_lambda = true
-        @lambda = true # dummy
+        @has_lambda = false
         @ids = [:a, :b]
       end
 
@@ -147,15 +145,15 @@ class BV
         @exp_size = @assignable_exp_max = 1
         @ids = []
         @arg_num = arg_num
-        if @parent
-          arg_num.times { @ids << @parent.selectable_ids.last.to_s.succ.to_sym }
+        if parent
+          arg_num.times { @ids << parent.selectable_ids.last.to_s.succ.to_sym }
         else
           @ids = (arg_num == 1 ? [:a] : [:a, :b])
         end
       end
 
       def to_a
-        [:lambda] + [@ids] + @exps[0].to_a
+        [:lambda] << @ids << @exps[0].to_a
       end
     end
 
@@ -167,7 +165,7 @@ class BV
       end
 
       def to_a
-        [@op] + @exps[0].to_a
+        [@op] << @exps[0].to_a
       end
     end
 
@@ -179,7 +177,7 @@ class BV
       end
 
       def to_a
-        [@op] + @exps[0].to_a + @exps[1].to_a
+        [@op] << @exps[0].to_a << @exps[1].to_a
       end
     end
 
@@ -190,7 +188,7 @@ class BV
       end
 
       def to_a
-        [@num]
+        @num
       end
     end
   end
@@ -202,7 +200,7 @@ class BV
     end
 
     def to_a
-      [@label]
+      @label
     end
   end
 end

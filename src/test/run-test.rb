@@ -7,7 +7,7 @@ require "bundler"
 Bundler.require(:default, :test)
 require "test/unit"
 
-require "bv"
+require "solver"
 
 test_file = "./test/test_*.rb"
 Dir.glob(test_file) do |file|
