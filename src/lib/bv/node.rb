@@ -48,7 +48,7 @@ class BV
     end
 
     def pop_exp
-      e = exps.pop
+      e = @exps.pop
       e.parent = nil if not e.nil?
       return e
     end
@@ -124,15 +124,15 @@ class BV
 
       # 最後はlambdaの方のexpへ格納
       def push_exp(e)
-        if exps.size < 2
+        if @exps.size < 2
           super
         else
           @lambda.push_exp(e)
         end
       end
 
-      def pop_exp(e)
-        if exps.size < 2
+      def pop_exp
+        if @lambda.exps.empty?
           super
         else
           @lambda.pop_exp
