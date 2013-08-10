@@ -138,7 +138,14 @@ class BV
 
   # (" shl1 e ")"
   def shl1(e)
-    eval_ex(e) << 1
+    r = eval_ex(e) << 1
+    if r > 0xFFFFFFFFFFFFFFFF
+      [r].pack("Q").bytes.
+        each_with_index.
+        inject(0){|r,(byte,i)| r += byte << (8*i) }
+    else
+      r
+    end
   end
 
   # (" shr1 e ")"

@@ -82,4 +82,10 @@ class TestBV < Test::Unit::TestCase
     ast = @bv.parse(prog)
     assert_equal 0xFFFFFFFFFFEEDDCC, @bv.eval_program(ast, 0x112233)
   end
+
+  should "左シフトのオーバフローでは切り捨てること" do
+    prog = "(lambda (x) (shl1 x))"
+    ast = @bv.parse(prog)
+    assert_equal 0xFFFFFFFFFFDDBB98, @bv.eval_program(ast, 0xFFFFFFFFFFEEDDCC)
+  end
 end
