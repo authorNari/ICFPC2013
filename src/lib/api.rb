@@ -16,7 +16,12 @@ module Api
       raise "You should set both"
     end
 
-    post('guess', JSON.generate(id: id, program: program))
+    res = post('guess', JSON.generate(id: id, program: program))
+    if ['win', 'mismatch'].include?(res['status'])
+      return res
+    else
+      raise "ServerSideError: status=<#{res['status']}>, message=<#{res['message']}>"
+    end
   end
 
   def myproblems
@@ -27,13 +32,18 @@ module Api
     post('status')
   end
 
-  def eval(id: nil, program: nil, arguments: [])
+  def eval(id: nil, program: nil, inputs: [])
     if (id.nil? && program.nil?) || (id && program)
       raise "You must set either id or program"
     end
 
-    arguments.map!{|arg| "0x" + arg.to_s(16) }
-    post('eval', JSON.generate(id: id, program: program, arguments: arguments))
+    arguments = inputs.map{|arg| "0x" + arg.to_s(16) }
+    res = post('eval', JSON.generate(id: id, program: program, arguments: arguments))
+    if res['status'] == 'ok'
+      return res
+    else
+      raise "ServerSideError: status=<#{res['status']}>, message=<#{res['message']}>"
+    end
   end
 
   private
@@ -43,13 +53,16 @@ module Api
   end
 
   def post(path, body=nil)
+    puts "--> POST: #{path} #{body}"
     url = uri(path)
     req = Net::HTTP::Post.new("#{url.path}?#{url.query}")
     req.body = body
     res = Net::HTTP.start(url.host){|http| http.request(req) }
     case res
     when Net::HTTPSuccess, Net::HTTPRedirection
-      return JSON.parse(res.body)
+      json = JSON.parse(res.body)
+      puts "<-- POST: #{path} #{json}"
+      return json
     else
       return res.value
     end    
