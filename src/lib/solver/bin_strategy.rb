@@ -20,7 +20,7 @@ class Solver
     end
 
     def do_complete_node(node)
-      p node.root.to_a
+      #p node.root.to_a
       # ast = node.root.to_a
       # key = @try_inputs.map do |i|
       #   [i, @bv.eval_program(ast, i)]
