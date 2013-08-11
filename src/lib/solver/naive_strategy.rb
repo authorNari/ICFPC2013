@@ -29,13 +29,20 @@ class Solver
 
     # 再帰的に呼び出し候補をすべて試すメソッド
     # 最終的に答えが見つかったnodeを返す
-    def naive_search(node, ops_candidate)
+    def naive_search(node, ops_candidate, used_ops=[])
       ops = ops_candidate.dup
       #p "--------#{node}----------"
 
+      # 割り当てられていないのにサイズがオーバー
+      if !node.root.assigned? && node.root.size >= @size
+        return false
+      end
+
       # すべて割り当てて済み && 未選択のオペレータがない
       #p assigned: node.root.assigned?, node: node.root.to_a.to_s
-      if node.root.assigned? && ops_candidate.empty? && node.size != @size
+      if node.root.assigned? &&
+          node.root.size == @size &&
+          used_all_op?(ops_candidate, used_ops)
         #p "------ assigned -------"
         return do_complete_node(node)
       end
@@ -46,10 +53,14 @@ class Solver
       #p candidate: candidate
       #p exp_max: node.assignable_exp_max
       candidate.permutation(node.assignable_exp_max).to_a.uniq.each do |comb|
+        #p comb: comb, node: node.root.to_a
         comb.map {|c| node.push_exp(c) }.each do |exp|
-          if n = naive_search(exp, unselected_ops(ops, comb))
+          comb.each{|c| used_ops << c }
+          if n = naive_search(exp, unselected_ops(ops, comb), used_ops)
+            comb.each{|c| used_ops.pop }
             return n
           end
+          comb.each{|c| used_ops.pop }
         end
 
         while node.pop_exp; end
@@ -79,6 +90,10 @@ class Solver
       }
       #p af_ops: ops
       return ops.compact
+    end
+
+    def used_all_op?(ops, used_ops)
+      (ops - used_ops).empty?
     end
 
     # それぞれのoperatorのeに応じた重複可能数の計算
@@ -111,6 +126,7 @@ class Solver
     end
 
     def do_complete_node(node)
+      #p node: node.root.to_a, size: [node.root.size, @size]
       if correct?(node.root.to_a)
         return node.root
       else

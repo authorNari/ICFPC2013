@@ -37,7 +37,6 @@ class Solver
         ns.try_solve)
     end
 
-    priority :never
     test "size10, op重複なしの組み合わせが解ける" do
       ns = NaiveStrategy.new(
         10, [:and, :if0, :shr16, :xor],
@@ -74,6 +73,16 @@ class Solver
         [0x0174A453B75C8AEE])
       assert_equal(
         "(lambda (a) (plus a a))",
+        ns.try_solve)
+    end
+
+    test "size5, op重複あり" do
+      ns = NaiveStrategy.new(
+        5,  ["not", "shr1"].map(&:to_sym),
+        [0,0xff,0xffff],
+        [0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFC0, 0xFFFFFFFFFFFFC000])
+      assert_equal(
+        "(lambda (a) (not (shr1 (shr1 a))))",
         ns.try_solve)
     end
   end
