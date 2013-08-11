@@ -1,8 +1,15 @@
 class Solver
+  # 全ケースを入出力をあらかじめ貯めこんで試すやつ
   class BinStrategy < NaiveStrategy
     def try_solve
       @bin_dict = []
       prepare_bin_dict
+      if @inputs.empty?
+        @inputs = @try_inputs
+        res = Api.eval(id: @id, inputs: @inputs)
+        @outputs = res['outputs'].map{|o| o.to_i(16) }
+      end
+      answer(@input, @output)
     end
   
     def prepare_bin_dict
@@ -19,13 +26,16 @@ class Solver
       p @bin_dict.size
     end
 
+    def answer(input, output)
+      return @bin_dict[input.zip(output).to_a]
+    end
+
     def do_complete_node(node)
-      #p node.root.to_a
-      # ast = node.root.to_a
-      # key = @try_inputs.map do |i|
-      #   [i, @bv.eval_program(ast, i)]
-      # end
-      # @bin_dict[key] = ast
+      ast = node.root.to_a
+      key = @try_inputs.map do |i|
+        [i, @bv.eval_program(ast, i)]
+      end
+      @bin_dict[key] = ast
       return false
     end
   end

@@ -9,7 +9,7 @@ class Solver
       bs.try_solve
 
       bs = BinStrategy.new(
-        11, [:and, :if0, :shr16, :xor],
+        12, [:and, :if0, :shr16, :xor],
         [0x1, 0x2, 0x3, 0x4], [0x0, 0x2, 0x0, 0x4])
       bs.try_solve
     end
