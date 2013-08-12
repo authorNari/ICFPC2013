@@ -10,9 +10,10 @@ class BV
       @has_lambda = false
       @parent = nil
       @self_size = 1
+      @op = nil
     end
     attr_accessor :parent
-    attr_reader :assignable_exp_max, :exp_size, :exps
+    attr_reader :assignable_exp_max, :exp_size, :exps, :op
 
     def self.get(op)
       case op
@@ -41,10 +42,29 @@ class BV
       if exps.size == assignable_exp_max
         return nil
       end
-      e = self.class.get(v)
+      e = (v.is_a?(Symbol)||[1, 0].include?(v)) ? self.class.get(v) : v
       @exps << e
       e.parent = self
       return e
+    end
+
+    # 空いているところにexpを入れる
+    def assign_exp(e)
+      if exps.size < @assignable_exp_max
+        return push_exp(e)
+      end
+
+      if i = @exps.index(nil)
+        e.parent = self
+        @exps[i] = e
+        return e
+      end
+
+      if ex = exps.find{|exp| exp.assign_exp(e) if not exp.nil? }
+        return ex
+      end
+
+      return
     end
 
     def pop_exp
@@ -75,8 +95,8 @@ class BV
 
     # 子Nodeがアサイン済みであるか
     def assigned?
-      res = (exps.size == @assignable_exp_max)
-      res &&= exps.all?{|e| e.assigned? }
+      res = (exps.compact.size == @assignable_exp_max)
+      res &&= exps.compact.all?{|e| e.assigned? }
       res &&= (!@lambda.nil? && @lambda.assigned?) if has_lambda?
       return res
     end
@@ -97,13 +117,18 @@ class BV
 
     # 子供を含めたサイズの合計
     def size
-      @self_size + exps.map(&:size).inject(&:+).to_i
+      @self_size + exps.compact.map(&:size).inject(&:+).to_i
+    end
+
+    def used_ops
+      [[op] + exps.compact.map(&:used_ops)].flatten.compact
     end
 
     class If0 < Node
       def initialize
         super
         @exp_size = @assignable_exp_max = 3
+        @op = :if0
       end
 
       def to_a
@@ -119,6 +144,7 @@ class BV
         @has_lambda = true
         @lambda = Lambda.new(2, self)
         @self_size = 2
+        @op = :fold
       end
       attr_reader :lambda
 
@@ -157,6 +183,7 @@ class BV
         @has_lambda = false
         @ids = [:a, :b]
         @self_size = 1+2+1+1
+        @op = :fold
       end
 
       def to_a
@@ -219,21 +246,22 @@ class BV
         super()
         @num = num
       end
+      attr_reader :num
 
       def to_a
         @num
       end
     end
-  end
 
-  class Variable < Node
-    def initialize(label)
-      super()
-      @label = label
-    end
+    class Variable < Node
+      def initialize(label)
+        super()
+        @label = label
+      end
 
-    def to_a
-      @label
+      def to_a
+        @label
+      end
     end
   end
 end

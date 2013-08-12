@@ -85,5 +85,16 @@ class Solver
         "(lambda (a) (not (shr1 (shr1 a))))",
         ns.try_solve)
     end
+
+    priority :never
+    test "size12, op重複もちろんあり" do
+      ns = NaiveStrategy.new(
+        12,  ["if0", "not", "plus", "shr4", "xor"].map(&:to_sym),
+        [0x69589addb1198b, 0xd06d11b52fc209, 0x8f65e83e5513d2],
+        [0xFFF96A765224EE67, 0xFFF2F92EE4AD03DF, 0xFFF709A17C1AAEC2])
+      assert_equal(
+        "(lambda (a) (not (shr4 (if0 (plus (xor (shr4 a) 1) a) a a))))",
+        ns.try_solve)
+    end
   end
 end

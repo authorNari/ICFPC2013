@@ -13,8 +13,8 @@ class Solver
     end
 
     private
-    def correct?(ast)
-      res = @inputs.zip(@outputs).all? do |i, o|
+    def correct?(ast, inputs, outputs)
+      res = inputs.zip(outputs).all? do |i, o|
         o == @bv.eval_program(ast, i)
       end
       return res

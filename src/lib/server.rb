@@ -12,16 +12,37 @@ require 'haml'
 get '/' do
   @title = 'myproblems'
   @json = Api.myproblems
+  @json.sort_by!{|json| json['size'] }
+  # @json.sort_by!{|json|
+  #   if json['operators'].map(&:to_sym).all?{|s| BV::OP1.include?(s) || BV::OP2.include?(s) || s == :tfold}
+  #     0
+  #   else
+  #     1
+  #   end
+  # }
   index
 end
 
 
-get '/train' do
-  @title = 'train'
+get '/trains' do
+  @title = 'trains'
   @json = []
   5.times{ @json << Api.train }
   sleep 10
   index
+end
+
+get '/train' do
+  @title = "train(#{params[:size]})"
+  @json = Api.train(size: params[:size])
+  @inputs = [
+    0x0, 0xFF, 0xFFFF, 0xFFFFFF,
+    0xFFFFFFFF, 0xFFFFFFFFFF,
+    0xFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF]
+  res = Api.eval(id: @json['id'], inputs: @inputs)
+  @json['inputs'] = @inputs.map{|i| i.to_s(16)}
+  @json['outputs'] = res['outputs']
+  haml :train
 end
 
 get '/solve' do
@@ -65,8 +86,8 @@ __END__
 %a{:href => '/'}
   myproblems
 &nbsp;|&nbsp;
-%a{href: '/train'}
-  train
+%a{href: '/trains'}
+  trains
 %table
   %thead
     %tr
@@ -97,8 +118,8 @@ __END__
 %a{:href => '/'}
   myproblems
 &nbsp;|&nbsp;
-%a{href: '/train'}
-  train
+%a{href: '/trains'}
+  trains
 %p
   solved? : 
   = @res
@@ -112,3 +133,31 @@ __END__
   %p
     challenge :
     = @json['challenge']
+
+@@ train
+%a{:href => '/'}
+  myproblems
+&nbsp;|&nbsp;
+%a{href: '/trains'}
+  trains
+%p
+  solved? : 
+  = @res
+%p
+  size :
+  = @json['size']
+%p
+  operators :
+  = @json['operators']
+%p
+  challenge :
+  = @json['challenge']
+%p
+  inputs :
+  = @json['inputs']
+%p
+  outputs :
+  = @json['outputs']
+%p
+  %a{href: URI.escape("/solve?json=#{JSON.generate(@json)}")}
+    solve!

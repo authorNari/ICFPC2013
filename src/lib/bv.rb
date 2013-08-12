@@ -66,7 +66,7 @@ class BV
     when nil
       0
     else
-      raise "unexpected ast: #{ast}"
+      raise "unexpected ast: #{ast.inspect}"
     end
   end
 
@@ -106,12 +106,12 @@ class BV
       when *OP2
         send(method, e[1], e[2])
       else
-        raise "unexpected expression method: #{method}"
+        raise "unexpected expression method: #{method.inspect}"
       end
     when Numeric
       e
     else
-      raise "unexpected expression: #{e}"
+      raise "unexpected expression: #{e.inspect}"
     end
   end
 

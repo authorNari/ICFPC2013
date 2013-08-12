@@ -16,9 +16,9 @@ class Solver
     def try_solve
       # TFoldは最初の候補に確定
       if @operators.include?(:tfold)
-        node = naive_search(BV::Node.get(:tfold), @ops_candidate)
+        node = naive_search(BV::Node.get(:tfold), @ops_candidate, [], @size, @inputs, @outputs)
       else
-        node = naive_search(BV::Node::Lambda.new(1), @ops_candidate)
+        node = naive_search(BV::Node::Lambda.new(1), @ops_candidate, [], @size, @inputs, @outputs)
       end
       if node
         return @bv.ast_to_program(node.to_a)
@@ -29,22 +29,22 @@ class Solver
 
     # 再帰的に呼び出し候補をすべて試すメソッド
     # 最終的に答えが見つかったnodeを返す
-    def naive_search(node, ops_candidate, used_ops=[])
+    def naive_search(node, ops_candidate, used_ops, size, inputs, outputs)
       ops = ops_candidate.dup
       #p "--------#{node}----------"
 
       # 割り当てられていないのにサイズがオーバー
-      if !node.root.assigned? && node.root.size >= @size
+      if !node.root.assigned? && node.root.size >= size
         return false
       end
 
       # すべて割り当てて済み && 未選択のオペレータがない
-      #p assigned: node.root.assigned?, node: node.root.to_a.to_s
+      #p assigned: node.root.assigned?, node: node.root.to_a.to_s, size: size
       if node.root.assigned? &&
-          node.root.size == @size &&
+          node.root.size == size &&
           used_all_op?(ops_candidate, used_ops)
         #p "------ assigned -------"
-        return do_complete_node(node)
+        return do_complete_node(node, inputs, outputs)
       end
 
       # 候補の組み合わせを作ってexp分はめていく
@@ -56,7 +56,7 @@ class Solver
         #p comb: comb, node: node.root.to_a
         comb.map {|c| node.push_exp(c) }.each do |exp|
           comb.each{|c| used_ops << c }
-          if n = naive_search(exp, unselected_ops(ops, comb), used_ops)
+          if n = naive_search(exp, unselected_ops(ops, comb), used_ops, size, inputs, outputs)
             comb.each{|c| used_ops.pop }
             return n
           end
@@ -73,10 +73,16 @@ class Solver
     def init_candidate(operators)
       candidate = operators.dup
       candidate.delete(:tfold)
+      # expが少ないもの順の優先度
+      candidate.sort!{|c| BV::Node.get(c).exp_size}
+      @ops_candidate = candidate.dup
       # 重複可能なopを可能な数まで増やす
-      @ops_candidate = candidate.map do |c|
-        @e_dup_max[BV::Node.get(c).exp_size].times.map{ c }.to_a
-      end.flatten
+      candidate.each do |c|
+        (@e_dup_max[BV::Node.get(c).exp_size]-1).times.map{ c }.to_a.each do |dup|
+          # 重複分は優先度を下げる
+          @ops_candidate << dup
+        end
+      end
     end
 
     # 重複に気を使って、未選択のop配列を返す。
@@ -125,9 +131,9 @@ class Solver
       return e_dup_max
     end
 
-    def do_complete_node(node)
-      #p node: node.root.to_a, size: [node.root.size, @size]
-      if correct?(node.root.to_a)
+    def do_complete_node(node, inputs, outputs)
+      # p node: node.root.to_a
+      if correct?(node.root.to_a, inputs, outputs)
         return node.root
       else
         return false
